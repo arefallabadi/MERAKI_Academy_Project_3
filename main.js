@@ -31,6 +31,20 @@ const articles = [
     res.json(articles);
   })
 
+  app.get("/articles/:id",(req,res)=>{
+    const article = req.params.id
+    const found = articles.find((elm)=>{
+return elm.id == article 
+    })
+    if(found){
+        res.status(200);
+        res.json(found);
+    }else{
+        res.status(404);
+        res.json("article not found");
+    }  
+  })
+
 app.listen(port, () => {
     console.log(`server start on ttp://localhost:${port}`);
   });
