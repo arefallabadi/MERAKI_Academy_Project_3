@@ -2,6 +2,7 @@ const express = require("express");
 const { uuid } = require('uuidv4');
 const app = express();
 const port = 5000;
+app.use(express.json())
 
 const articles = [
   {
@@ -57,6 +58,15 @@ app.get("/articles/:id", (req, res) => {
     }
   });
  
+
+app.post("/articles", (req, res) => {
+  const newA = {
+    title: req.body.title, description: req.body.description, author: req.body.author, id: uuid()};
+  articles.push(newA);
+  res.status(201);
+  res.json(newA);
+});
+
 app.listen(port, () => {
   console.log(`server start on ttp://localhost:${port}`);
 });
