@@ -4,8 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start":"node main.js",
-    "dev":"nodemon mai.js",
+    "start": "node main.js",
+    "dev": "nodemon mai.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/arefallabadi/MERAKI_Academy_Project_3#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "uuidv4": "^6.2.8"
   }
 }

@@ -1,4 +1,5 @@
 const express = require("express");
+const { uuid } = require('uuidv4');
 const app = express();
 const port = 5000;
 
@@ -27,21 +28,20 @@ app.get("/articles", (req, res) => {
   res.status(200);
   res.json(articles);
 });
-
-
-app.get("/articles/search_1/:author", (req, res) => {
-  const article = req.params.author;
-  const found = articles.filter((elm) => {
-    return elm.author === article;
+ 
+app.get("/articles/search_1", (req, res) => {
+    const article = req.query.author;
+    const found = articles.filter((elm) => {
+      return elm.author === article;
+    });
+    if (found.length) {
+      res.status(200);
+      res.json(found);
+    } else {
+      res.status(404);
+      res.json("article not found");
+    }
   });
-  if (found.length) {
-    res.status(200);
-    res.json(found);
-  } else {
-    res.status(404);
-    res.json("article not found");
-  }
-});
 
 app.get("/articles/:id", (req, res) => {
     const article = req.params.id;
@@ -56,7 +56,8 @@ app.get("/articles/:id", (req, res) => {
       res.json("article not found");
     }
   });
-
+ 
 app.listen(port, () => {
   console.log(`server start on ttp://localhost:${port}`);
 });
+
