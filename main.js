@@ -41,7 +41,7 @@ const getArticlesByAuthor = (req, res) => {
     res.json(found);
   } else {
     res.status(404);
-    res.json("article not found");
+    res.send("article not found");
   }
 };
 app.get("/articles/search_1", getArticlesByAuthor);
@@ -56,7 +56,7 @@ const getAnArticleById = (req, res) => {
     res.json(found);
   } else {
     res.status(404);
-    res.json("article not found");
+    res.send("article not found");
   }
 };
 app.get("/articles/search_2", getAnArticleById);
@@ -70,7 +70,7 @@ const createNewArticle = (req, res) => {
   };
   articles.push(newA);
   res.status(201);
-  res.json(newA);
+  res.send(newA);
 };
 app.post("/articles", createNewArticle);
 
@@ -90,7 +90,7 @@ const updateAnArticleById = (req, res) => {
     res.json(update);
   } else {
     res.status(404);
-    res.json("article not found");
+    res.send("article not found");
   }
 };
 app.put("/articles/:id", updateAnArticleById);
@@ -111,19 +111,19 @@ const deleteArticleById = (req, res) => {
     res.status(201);
   } else {
     res.status(404);
-    res.json("article not found");
+    // res.send("article not found");
   }
 };
 app.delete("/articles/:id", deleteArticleById);
 
 const deleteArticlesByAuthor = (req, res) => {
   const article = req.body.author;
-  const found = articles.map((elm, i) => {
+  const found = articles.filter((elm, i) => {
     if (elm.author === article) {
       articles.splice(i, 1);
     } else {
       res.status(404);
-      res.json("article not found");
+      // res.send("article not found");
     }
   });
   res.status(200);
