@@ -80,10 +80,30 @@ app.put("/articles/:id", (req, res) => {
       title: req.body.title,
       description: req.body.description,
       author: req.body.author,
-      id: article
+      id: article,
     };
     res.status(201);
     res.json(update);
+  } else {
+    res.status(404);
+    res.json("article not found");
+  }
+});
+
+app.delete("/articles/:id", (req, res) => {
+  const article = req.params.id;
+  let index;
+  const found = articles.find((elm, i) => {
+    index = i;
+    return elm.id === Number(article);
+  });
+  if (found) {
+    articles.splice(index, 1)
+    res.json({
+      success: "true",
+      message: `Success Delete article with id => ${article}`,
+    });
+    res.status(201)
   } else {
     res.status(404);
     res.json("article not found");
