@@ -98,16 +98,33 @@ app.delete("/articles/:id", (req, res) => {
     return elm.id === Number(article);
   });
   if (found) {
-    articles.splice(index, 1)
+    articles.splice(index, 1);
     res.json({
       success: "true",
       message: `Success Delete article with id => ${article}`,
     });
-    res.status(201)
+    res.status(201);
   } else {
     res.status(404);
     res.json("article not found");
   }
+});
+
+app.delete("/articles", (req, res) => {
+  const article = req.body.author;
+  const found = articles.map((elm, i) => {
+    if (elm.author === article) {
+      articles.splice(i, 1);
+    } else {
+      res.status(404);
+      res.json("article not found");
+    }
+  });
+  res.status(200);
+  res.json({
+    success: "true",
+    message: `Success delete all the articles for the author => ${article}`,
+  });
 });
 
 app.listen(port, () => {
