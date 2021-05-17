@@ -1,5 +1,11 @@
 const express = require("express");
+
+const dbb= require("./db");
+
+
 const { uuid } = require("uuidv4");
+// const db =  require("./dbb")
+const { User , Article } = require("./schema");
 const app = express();
 const port = 5000;
 app.use(express.json());
@@ -133,6 +139,20 @@ const deleteArticlesByAuthor = (req, res) => {
   });
 };
 app.delete("/articles", deleteArticlesByAuthor);
+
+const createNewAuthor = (req, res)=>{
+  const {firstName ,lastName , age , country , email , password} = req.body
+  const user = new User ({firstName ,lastName , age , country , email , password})
+  user.save().then((result)=>{
+    res.json(result)
+    res.status(201)
+  }).catch((err)=>{
+    res.send(err)
+    res.status(404)
+  })
+}
+app.post("/users",createNewAuthor)
+
 
 app.listen(port, () => {
   console.log(`server start on http://localhost:${port}`);
