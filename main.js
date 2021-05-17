@@ -34,20 +34,20 @@ app.use(express.json());
 // };
 // app.get("/articles", getAllArticles);
 
-const getArticlesByAuthor = (req, res) => {
-  const article = req.query.author;
-  const found = articles.filter((elm) => {
-    return elm.author === article;
-  });
-  if (found.length) {
-    res.status(200);
-    res.json(found);
-  } else {
-    res.status(404);
-    res.send("article not found");
-  }
-};
-app.get("/articles/search_1", getArticlesByAuthor);
+// const getArticlesByAuthor = (req, res) => {
+  // const article = req.query.author;
+  // const found = articles.filter((elm) => {
+  //   return elm.author === article;
+  // });
+  // if (found.length) {
+  //   res.status(200);
+  //   res.json(found);
+  // } else {
+  //   res.status(404);
+  //   res.send("article not found");
+  // }
+// };
+// app.get("/articles/search_1", getArticlesByAuthor);
 
 const getAnArticleById = (req, res) => {
   const article = req.query.id;
@@ -173,6 +173,24 @@ const getAllArticles = (req, res) => {
   })
 }
 app.get("/articles", getAllArticles);
+
+const getArticlesByAuthor =(req, res)=>{
+  const article = req.query.author;
+  const found = Article.filter((elm) => {
+    return elm.author === article;
+  });
+  if (found.length) {
+    res.status(200);
+    res.json(found);
+  } else {
+    res.status(404);
+    res.send("article not found");
+  }
+}
+
+app.get("/articles/search_1", getArticlesByAuthor);
+
+
 
 
 app.listen(port, () => {
