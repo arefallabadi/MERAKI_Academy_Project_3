@@ -1,41 +1,38 @@
 const express = require("express");
-
-const dbb= require("./db");
-
-
+const db = require("./db");
 const { uuid } = require("uuidv4");
 // const db =  require("./dbb")
-const { User , Article } = require("./schema");
+const { User, Article } = require("./schema");
 const app = express();
 const port = 5000;
 app.use(express.json());
 
-const articles = [
-  {
-    id: 1,
-    title: "How I learn coding?",
-    description: "Lorem, Quam, mollitia.",
-    author: "Jouza",
-  },
-  {
-    id: 2,
-    title: "Coding Best Practices",
-    description: "Lorem, ipsum dolor sit, Quam, mollitia.",
-    author: "Besslan",
-  },
-  {
-    id: 3,
-    title: "Debugging",
-    description: "Lorem, Quam, mollitia.",
-    author: "Jouza",
-  },
-];
+// const articles = [
+//   {
+//     id: 1,
+//     title: "How I learn coding?",
+//     description: "Lorem, Quam, mollitia.",
+//     author: "Jouza",
+//   },
+//   {
+//     id: 2,
+//     title: "Coding Best Practices",
+//     description: "Lorem, ipsum dolor sit, Quam, mollitia.",
+//     author: "Besslan",
+//   },
+//   {
+//     id: 3,
+//     title: "Debugging",
+//     description: "Lorem, Quam, mollitia.",
+//     author: "Jouza",
+//   },
+// ];
 
-const getAllArticles = (req, res) => {
-  res.status(200);
-  res.json(articles);
-};
-app.get("/articles", getAllArticles);
+// const getAllArticles = (req, res) => {
+//   res.status(200);
+//   res.json(articles);
+// };
+// app.get("/articles", getAllArticles);
 
 const getArticlesByAuthor = (req, res) => {
   const article = req.query.author;
@@ -67,18 +64,18 @@ const getAnArticleById = (req, res) => {
 };
 app.get("/articles/search_2", getAnArticleById);
 
-const createNewArticle = (req, res) => {
-  const newA = {
-    title: req.body.title,
-    description: req.body.description,
-    author: req.body.author,
-    id: uuid(),
-  };
-  articles.push(newA);
-  res.status(201);
-  res.send(newA);
-};
-app.post("/articles", createNewArticle);
+// const createNewArticle = (req, res) => {
+//   const newA = {
+//     title: req.body.title,
+//     description: req.body.description,
+//     author: req.body.author,
+//     id: uuid(),
+//   };
+//   articles.push(newA);
+//   res.status(201);
+//   res.send(newA);
+// };
+// app.post("/articles", createNewArticle);
 
 const updateAnArticleById = (req, res) => {
   const article = req.params.id;
@@ -140,18 +137,42 @@ const deleteArticlesByAuthor = (req, res) => {
 };
 app.delete("/articles", deleteArticlesByAuthor);
 
-const createNewAuthor = (req, res)=>{
-  const {firstName ,lastName , age , country , email , password} = req.body
-  const user = new User ({firstName ,lastName , age , country , email , password})
-  user.save().then((result)=>{
+const createNewAuthor = (req, res) => {
+  const { firstName, lastName, age, country, email, password } = req.body
+  const user = new User({ firstName, lastName, age, country, email, password })
+  user.save().then((result) => {
     res.json(result)
     res.status(201)
-  }).catch((err)=>{
+  }).catch((err) => {
     res.send(err)
     res.status(404)
   })
 }
-app.post("/users",createNewAuthor)
+app.post("/users", createNewAuthor)
+
+const createNewArticle = (req, res) => {
+  const { title, description, author }= req.body
+  const newArticle = new Article({ title, description, author })
+   newArticle.save().then((result) => {
+    res.json(result)
+    res.status(201)
+  }).catch((err) => {
+    res.json(err)
+    res.status(404)
+  })
+}
+app.post("/articles", createNewArticle);
+
+const getAllArticles = (req, res) => {
+  Article.find({}).then((result) => {
+    res.json(result)
+    res.status(200);
+  }).catch((err) => {
+    res.json(err)
+    res.status(404);
+  })
+}
+app.get("/articles", getAllArticles);
 
 
 app.listen(port, () => {

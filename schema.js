@@ -5,7 +5,7 @@ const users = new mongoose.Schema({
   lastName: { type: String },
   age: { type: Number },
   country: { type: String },
-  email: { type: String , require:true ,unique:true },
+  email: { type: String, require: true, unique: true },
   password: { type: String },
 });
 
@@ -18,4 +18,4 @@ const articles = new mongoose.Schema({
 const User = mongoose.model("user", users);
 const Article = mongoose.model("article", articles);
 module.exports.User = User;
-module.exports.Article =Article ;
+module.exports.Article = Article;
