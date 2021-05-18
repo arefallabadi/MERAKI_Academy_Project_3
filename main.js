@@ -35,34 +35,34 @@ app.use(express.json());
 // app.get("/articles", getAllArticles);
 
 // const getArticlesByAuthor = (req, res) => {
-  // const article = req.query.author;
-  // const found = articles.filter((elm) => {
-  //   return elm.author === article;
-  // });
-  // if (found.length) {
-  //   res.status(200);
-  //   res.json(found);
-  // } else {
-  //   res.status(404);
-  //   res.send("article not found");
-  // }
+// const article = req.query.author;
+// const found = articles.filter((elm) => {
+//   return elm.author === article;
+// });
+// if (found.length) {
+//   res.status(200);
+//   res.json(found);
+// } else {
+//   res.status(404);
+//   res.send("article not found");
+// }
 // };
 // app.get("/articles/search_1", getArticlesByAuthor);
 
-const getAnArticleById = (req, res) => {
-  const article = req.query.id;
-  const found = articles.find((elm) => {
-    return elm.id === Number(article);
-  });
-  if (found) {
-    res.status(200);
-    res.json(found);
-  } else {
-    res.status(404);
-    res.send("article not found");
-  }
-};
-app.get("/articles/search_2", getAnArticleById);
+// const getAnArticleById = (req, res) => {
+//   const article = req.query.id;
+//   const found = articles.find((elm) => {
+//     return elm.id === Number(article);
+//   });
+//   if (found) {
+//     res.status(200);
+//     res.json(found);
+//   } else {
+//     res.status(404);
+//     res.send("article not found");
+//   }
+// };
+// app.get("/articles/search_2", getAnArticleById);
 
 // const createNewArticle = (req, res) => {
 //   const newA = {
@@ -138,57 +138,82 @@ const deleteArticlesByAuthor = (req, res) => {
 app.delete("/articles", deleteArticlesByAuthor);
 
 const createNewAuthor = (req, res) => {
-  const { firstName, lastName, age, country, email, password } = req.body
-  const user = new User({ firstName, lastName, age, country, email, password })
-  user.save().then((result) => {
-    res.json(result)
-    res.status(201)
-  }).catch((err) => {
-    res.send(err)
-    res.status(404)
-  })
-}
-app.post("/users", createNewAuthor)
+  const { firstName, lastName, age, country, email, password } = req.body;
+  const user = new User({ firstName, lastName, age, country, email, password });
+  user
+    .save()
+    .then((result) => {
+      res.json(result);
+      res.status(201);
+    })
+    .catch((err) => {
+      res.send(err);
+      res.status(404);
+    });
+};
+app.post("/users", createNewAuthor);
 
 const createNewArticle = (req, res) => {
-  const { title, description, author }= req.body
-  const newArticle = new Article({ title, description, author })
-   newArticle.save().then((result) => {
-    res.json(result)
-    res.status(201)
-  }).catch((err) => {
-    res.json(err)
-    res.status(404)
-  })
-}
+  const { title, description, author } = req.body;
+  const newArticle = new Article({ title, description, author });
+  newArticle
+    .save()
+    .then((result) => {
+      res.json(result);
+      res.status(201);
+    })
+    .catch((err) => {
+      res.json(err);
+      res.status(404);
+    });
+};
 app.post("/articles", createNewArticle);
 
 const getAllArticles = (req, res) => {
-  Article.find({}).then((result) => {
-    res.json(result)
-    res.status(200);
-  }).catch((err) => {
-    res.json(err)
-    res.status(404);
-  })
-}
+  Article.find({})
+    .then((result) => {
+      res.json(result);
+      res.status(200);
+    })
+    .catch((err) => {
+      res.json(err);
+      res.status(404);
+    });
+};
 app.get("/articles", getAllArticles);
 
-const getArticlesByAuthor =(req, res)=>{
+const getArticlesByAuthor = (req, res) => {
   const article = req.query.author;
-  const found = Article.filter((elm) => {
-    return elm.author === article;
-  });
-  if (found.length) {
-    res.status(200);
-    res.json(found);
-  } else {
-    res.status(404);
-    res.send("article not found");
-  }
-}
-
+  Article.find({
+    author: article,
+  })
+    .then((result) => {
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.status(404);
+      res.json(err);
+    });
+};
 app.get("/articles/search_1", getArticlesByAuthor);
+
+const getAnArticleById = (req, res) => {
+  const article = req.query.id;
+  Article
+    .find({
+      _id: article
+    })
+    .then((result) => {
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.status(404);
+      res.json(err);
+    });
+};
+app.get("/articles/search_2", getAnArticleById);
 
 
 
