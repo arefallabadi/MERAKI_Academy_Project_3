@@ -262,6 +262,24 @@ const deleteArticlesByAuthor = async (req, res) => {
 };
 app.delete("/articles", deleteArticlesByAuthor);
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  User.find({email, password})
+    .then((result) => {
+      if(result.length){
+        res.status(201)
+        res.json("Valid login credentials")
+      }else{
+        res.status(404)
+        res.json("Invalid login credentials");
+      }
+    })
+    .catch((err) => {
+      res.status(404);
+    });
+};
+app.post("/login",login);
+
 app.listen(port, () => {
   console.log(`server start on http://localhost:${port}`);
 });
