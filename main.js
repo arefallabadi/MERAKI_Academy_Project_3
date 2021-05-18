@@ -77,65 +77,65 @@ app.use(express.json());
 // };
 // app.post("/articles", createNewArticle);
 
-const updateAnArticleById = (req, res) => {
-  const article = req.params.id;
-  const found = articles.find((elm) => {
-    return elm.id === Number(article);
-  });
-  if (found) {
-    const update = {
-      title: req.body.title,
-      description: req.body.description,
-      author: req.body.author,
-      id: article,
-    };
-    res.status(201);
-    res.json(update);
-  } else {
-    res.status(404);
-    res.send("article not found");
-  }
-};
-app.put("/articles/:id", updateAnArticleById);
+// const updateAnArticleById = (req, res) => {
+//   const article = req.params.id;
+//   const found = articles.find((elm) => {
+//     return elm.id === Number(article);
+//   });
+//   if (found) {
+//     const update = {
+//       title: req.body.title,
+//       description: req.body.description,
+//       author: req.body.author,
+//       id: article,
+//     };
+//     res.status(201);
+//     res.json(update);
+//   } else {
+//     res.status(404);
+//     res.send("article not found");
+//   }
+// };
+// app.put("/articles/:id", updateAnArticleById);
 
-const deleteArticleById = (req, res) => {
-  const article = req.params.id;
-  let index;
-  const found = articles.find((elm, i) => {
-    index = i;
-    return elm.id === Number(article);
-  });
-  if (found) {
-    articles.splice(index, 1);
-    res.json({
-      success: "true",
-      message: `Success Delete article with id => ${article}`,
-    });
-    res.status(201);
-  } else {
-    res.status(404);
-    // res.send("article not found");
-  }
-};
-app.delete("/articles/:id", deleteArticleById);
+// const deleteArticleById = (req, res) => {
+//   const article = req.params.id;
+//   let index;
+//   const found = articles.find((elm, i) => {
+//     index = i;
+//     return elm.id === Number(article);
+//   });
+//   if (found) {
+//     articles.splice(index, 1);
+//     res.json({
+//       success: "true",
+//       message: `Success Delete article with id => ${article}`,
+//     });
+//     res.status(201);
+//   } else {
+//     res.status(404);
+//     // res.send("article not found");
+//   }
+// };
+// app.delete("/articles/:id", deleteArticleById);
 
-const deleteArticlesByAuthor = (req, res) => {
-  const article = req.body.author;
-  const found = articles.filter((elm, i) => {
-    if (elm.author === article) {
-      articles.splice(i, 1);
-    } else {
-      res.status(404);
-      // res.send("article not found");
-    }
-  });
-  res.status(200);
-  res.json({
-    success: "true",
-    message: `Success delete all the articles for the author => ${article}`,
-  });
-};
-app.delete("/articles", deleteArticlesByAuthor);
+// const deleteArticlesByAuthor = (req, res) => {
+//   const article = req.body.author;
+//   const found = articles.filter((elm, i) => {
+//     if (elm.author === article) {
+//       articles.splice(i, 1);
+//     } else {
+//       res.status(404);
+//       // res.send("article not found");
+//     }
+//   });
+//   res.status(200);
+//   res.json({
+//     success: "true",
+//     message: `Success delete all the articles for the author => ${article}`,
+//   });
+// };
+// app.delete("/articles", deleteArticlesByAuthor);
 
 const createNewAuthor = (req, res) => {
   const { firstName, lastName, age, country, email, password } = req.body;
@@ -200,10 +200,9 @@ app.get("/articles/search_1", getArticlesByAuthor);
 
 const getAnArticleById = (req, res) => {
   const article = req.query.id;
-  Article
-    .find({
-      _id: article
-    })
+  Article.find({
+    _id: article,
+  })
     .then((result) => {
       res.status(200);
       res.json(result);
@@ -215,8 +214,53 @@ const getAnArticleById = (req, res) => {
 };
 app.get("/articles/search_2", getAnArticleById);
 
+const updateAnArticleById = (req, res) => {
+  const article = req.params.id;
+  const update = req.body.update;
+  Article.findOneAndUpdate({ author: article }, update, { new: true })
+    .then((result) => {
+      res.status(200);
+      res.jason(result);
+    })
+    .catch((err) => {
+      res.json(err);
+      res.status(404);
+    });
+};
+app.put("/articles/:id", updateAnArticleById);
 
+const deleteArticleById = (req, res) => {
+  const article = req.params.id;
+  Article.deleteMany({
+    id: article,
+  })
+    .then(() => {
+      res.json({
+        success: "true",
+        message: `Success Delete article with id => ${article}`,
+      });
+      res.status(201);
+    })
+    .catch((err) => {
+      res.status(404);
+      res.json(err);
+    });
+};
+app.delete("/articles/:id", deleteArticleById);
 
+const deleteArticlesByAuthor = async (req, res) => {
+  const article = req.body.author;
+  await Article.deleteMany({ author: article })
+    .then((result) => {
+      res.status = 200;
+      res.json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+      res.status(404);
+    });
+};
+app.delete("/articles", deleteArticlesByAuthor);
 
 app.listen(port, () => {
   console.log(`server start on http://localhost:${port}`);
