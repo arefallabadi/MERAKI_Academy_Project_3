@@ -283,21 +283,21 @@ app.delete("/articles", deleteArticlesByAuthor);
 // };
 // app.post("/login", login);
 
-const createNewComment = (rea, res) => {
-  const { comment, commenter } = req.body;
-  const id = req.params.id;
-  const newComment = new Comment({ comment, commenter });
-  newComment
-    .save()
-    .then((result) => {
-      res.status(201);
-      res.json(result);
-    })
-    .catch((err) => {
-      res.status(404);
-    });
-};
-app.post("/articles/:id/comments", createNewComment);
+// const createNewComment = (rea, res) => {
+//   const { comment, commenter } = req.body;
+//   const id = req.params.id;
+//   const newComment = new Comment({ comment, commenter });
+//   newComment
+//     .save()
+//     .then((result) => {
+//       res.status(201);
+//       res.json(result);
+//     })
+//     .catch((err) => {
+//       res.status(404);
+//     });
+// };
+// app.post("/articles/:id/comments", createNewComment);
 
 // console.log(process.env.DB_URI);
 // console.log(process.env.SECRET);
@@ -320,14 +320,24 @@ app.post("/users", createNewAuthor);
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  User.find({ email, password })
+  User.findOne({ email, password })
     .then((result) => {
-      if(result.length){
-        console.log(result);
-        bcrypt.compare(password, result[0].password, (err, result) => {
-          res.json(result);
+      if (result) {
+        bcrypt.compare(req.body.password, result.password, (err, result) => {
+          if (result) {
+            const payload = { Id: result._id, country: result.country };
+            const options = { expiresIn: "60m" };
+            const token = jwt.sign(payload, secret, options);
+            res.json(token);
+          } else {
+            res.json({
+              message: "The password you’ve entered is incorrect",
+              status: 403,
+            });
+          }
         });
-      }else{
+      } else {
+        res.json({ message: "The email doesn't exist", status: 404 });
       }
     })
     .catch((err) => {
@@ -335,6 +345,35 @@ const login = (req, res) => {
     });
 };
 app.post("/login", login);
+
+const secret = process.env.SECRET;
+const createNewComment = (rea, res) => {
+  const authentication = (req, res, next) => {
+    const token = req.headers.authorization.split(" ")[1];
+    jwt.verify(token, secret, (err, result) => {
+        if (err) {
+            res.status(403)
+            return res.json(err);
+        }else{
+            next()
+        }
+    });
+}
+  const { comment, commenter } = req.body;
+  const id = req.params.id;
+  const newComment = new Comment({ comment, commenter });
+  newComment
+    .save()
+    .then((result) => {
+      res.status(201);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.status(404);
+      res.json(err)
+    });
+};
+app.post("/articles/:id/comments", createNewComment);
 
 app.listen(port, () => {
   console.log(`server start on http://localhost:${port}`);
