@@ -1,8 +1,11 @@
 const express = require("express");
 const db = require("./db");
 const { uuid } = require("uuidv4");
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 // const db =  require("./dbb")
-const { User, Article } = require("./schema");
+const { User, Article, Comment } = require("./schema");
 const app = express();
 const port = 5000;
 app.use(express.json());
@@ -264,13 +267,13 @@ app.delete("/articles", deleteArticlesByAuthor);
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  User.find({email, password})
+  User.find({ email, password })
     .then((result) => {
-      if(result.length){
-        res.status(201)
-        res.json("Valid login credentials")
-      }else{
-        res.status(404)
+      if (result.length) {
+        res.status(201);
+        res.json("Valid login credentials");
+      } else {
+        res.status(404);
         res.json("Invalid login credentials");
       }
     })
@@ -278,7 +281,27 @@ const login = (req, res) => {
       res.status(404);
     });
 };
-app.post("/login",login);
+app.post("/login", login);
+
+const createNewComment = (rea, res) => {
+  const { comment, commenter } = req.body;
+  const id = req.params.id
+  const newComment = new Comment({ comment, commenter });
+  newComment
+    .save()
+    .then((result) => {
+      res.status(201);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.status(404);
+    });
+};
+app.post("/articles/:id/comments", createNewComment);
+
+// console.log(process.env.DB_URI);
+// console.log(process.env.SECRET);
+
 
 app.listen(port, () => {
   console.log(`server start on http://localhost:${port}`);
