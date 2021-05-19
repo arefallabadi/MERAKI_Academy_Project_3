@@ -140,21 +140,21 @@ app.use(express.json());
 // };
 // app.delete("/articles", deleteArticlesByAuthor);
 
-const createNewAuthor = (req, res) => {
-  const { firstName, lastName, age, country, email, password } = req.body;
-  const user = new User({ firstName, lastName, age, country, email, password });
-  user
-    .save()
-    .then((result) => {
-      res.json(result);
-      res.status(201);
-    })
-    .catch((err) => {
-      res.send(err);
-      res.status(404);
-    });
-};
-app.post("/users", createNewAuthor);
+// const createNewAuthor = (req, res) => {
+//   const { firstName, lastName, age, country, email, password } = req.body;
+//   const user = new User({ firstName, lastName, age, country, email, password });
+//   user
+//     .save()
+//     .then((result) => {
+//       res.json(result);
+//       res.status(201);
+//     })
+//     .catch((err) => {
+//       res.send(err);
+//       res.status(404);
+//     });
+// };
+// app.post("/users", createNewAuthor);
 
 const createNewArticle = (req, res) => {
   const { title, description, author } = req.body;
@@ -265,27 +265,27 @@ const deleteArticlesByAuthor = async (req, res) => {
 };
 app.delete("/articles", deleteArticlesByAuthor);
 
-const login = (req, res) => {
-  const { email, password } = req.body;
-  User.find({ email, password })
-    .then((result) => {
-      if (result.length) {
-        res.status(201);
-        res.json("Valid login credentials");
-      } else {
-        res.status(404);
-        res.json("Invalid login credentials");
-      }
-    })
-    .catch((err) => {
-      res.status(404);
-    });
-};
-app.post("/login", login);
+// const login = (req, res) => {
+//   const { email, password } = req.body;
+//   User.find({ email, password })
+//     .then((result) => {
+//       if (result.length) {
+//         res.status(201);
+//         res.json("Valid login credentials");
+//       } else {
+//         res.status(404);
+//         res.json("Invalid login credentials");
+//       }
+//     })
+//     .catch((err) => {
+//       res.status(404);
+//     });
+// };
+// app.post("/login", login);
 
 const createNewComment = (rea, res) => {
   const { comment, commenter } = req.body;
-  const id = req.params.id
+  const id = req.params.id;
   const newComment = new Comment({ comment, commenter });
   newComment
     .save()
@@ -302,6 +302,39 @@ app.post("/articles/:id/comments", createNewComment);
 // console.log(process.env.DB_URI);
 // console.log(process.env.SECRET);
 
+const createNewAuthor = (req, res) => {
+  const { firstName, lastName, age, country, email, password } = req.body;
+  const user = new User({ firstName, lastName, age, country, email, password });
+  user
+    .save()
+    .then((result) => {
+      res.json(result);
+      res.status(201);
+    })
+    .catch((err) => {
+      res.send(err);
+      res.status(404);
+    });
+};
+app.post("/users", createNewAuthor);
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+  User.find({ email, password })
+    .then((result) => {
+      if(result.length){
+        console.log(result);
+        bcrypt.compare(password, result[0].password, (err, result) => {
+          res.json(result);
+        });
+      }else{
+      }
+    })
+    .catch((err) => {
+      res.status(404);
+    });
+};
+app.post("/login", login);
 
 app.listen(port, () => {
   console.log(`server start on http://localhost:${port}`);
