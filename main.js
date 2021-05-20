@@ -157,8 +157,8 @@ app.use(express.json());
 // app.post("/users", createNewAuthor);
 
 const createNewArticle = (req, res) => {
-  const { title, description, author } = req.body;
-  const newArticle = new Article({ title, description, author });
+  const { title, description, author, comments } = req.body;
+  const newArticle = new Article({ title, description, author, comments });
   newArticle
     .save()
     .then((result) => {
@@ -303,8 +303,16 @@ app.delete("/articles", deleteArticlesByAuthor);
 // console.log(process.env.SECRET);
 
 const createNewAuthor = (req, res) => {
-  const { firstName, lastName, age, country, email, password ,role } = req.body;
-  const user = new User({ firstName, lastName, age, country, email, password ,role });
+  const { firstName, lastName, age, country, email, password, role } = req.body;
+  const user = new User({
+    firstName,
+    lastName,
+    age,
+    country,
+    email,
+    password,
+    role,
+  });
   user
     .save()
     .then((result) => {
@@ -354,34 +362,33 @@ const login = (req, res) => {
 app.post("/login", login);
 
 const secret = process.env.SECRET;
-const authentications = (req, res, next) => {
- if(!req.headers.authorization){
-  res.status(403);
-  return res.json(err);
- }
-const token = req.headers.authorization.split(" ")[1];
-try{
-  const a =  jwt.verify(token, secret)
-  req.token = a
-  next() 
-}
-catch (err){
-  res.status(403);
-  res.json(err);
-}
+const authentication = async (req, res, next) => {
+  if (!req.headers.authorization) {
+    res.status(403);
+    return res.json({ message: "forbidden " });
+  }
+  const token = req.headers.authorization.split(" ")[1];
+  try {
+    const pToken = jwt.verify(token, secret);
+    req.token = pToken;
+    authorization("CREATE_COMMENT");
+    next();
+  } catch (err) {
+    res.status(403);
+    res.json({ message: "forbidden " });
+  }
 
-
-//  jwt.verify(token, secret, (err, result) => {
-//     if (err) {
-//       res.status(403);
-//       return res.json(err);
-//     } else {
-//       next();
-//     }
-//   });
+  //  jwt.verify(token, secret, (err, result) => {
+  //     if (err) {
+  //       res.status(403);
+  //       return res.json(err);
+  //     } else {
+  //       next();
+  //     }
+  //   });
 };
 const createNewComment =
-  (authentications,
+  (authentication,
   (req, res) => {
     const { comment, commenter } = req.body;
     const id = req.params.id;
@@ -402,17 +409,34 @@ app.post("/articles/:id/comments", createNewComment);
 const createNewRole = (req, res) => {
   const { role, permissions } = req.body;
   const newRole = new Role({ role, permissions });
-  newRole.save().then((result)=>{
-    res.json(result)
-    res.status(201)
-  }).catch((err)=>{
-    res.json(err)
-    res.status(404) 
-  })
+  newRole
+    .save()
+    .then((result) => {
+      res.json(result);
+      res.status(201);
+    })
+    .catch((err) => {
+      res.json(err);
+      res.status(404);
+    });
 };
 app.post("/role", createNewRole);
 
-
+const authorization = (string) => {
+  fun = (req, res, next) => {
+    const { token } = req.body;
+    if (token.permissions === string) {
+      let a = token.permissions === string;
+      console.log(a);
+      // next();
+    } else {
+      res.status();
+      res.json({ message: "forbidden" });
+     console.log("err");
+    }
+  };
+};
+authorization("CREATE_COMMENT")
 
 app.listen(port, () => {
   console.log(`server start on http://localhost:${port}`);
