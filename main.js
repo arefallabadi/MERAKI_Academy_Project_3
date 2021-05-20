@@ -355,15 +355,28 @@ app.post("/login", login);
 
 const secret = process.env.SECRET;
 const authentications = (req, res, next) => {
-  const token = req.headers.authorization.split(" ")[1];
-  jwt.verify(token, secret, (err, result) => {
-    if (err) {
-      res.status(403);
-      return res.json(err);
-    } else {
-      next();
-    }
-  });
+ if(!req.headers.authorization){
+  res.status(403);
+  return res.json(err);
+ }
+const token = req.headers.authorization.split(" ")[1];
+try{
+  const a =  jwt.verify(token, secret)
+  req.token = a
+  next() 
+}
+catch (err){
+  res.status(403);
+  res.json(err);
+}
+//  jwt.verify(token, secret, (err, result) => {
+//     if (err) {
+//       res.status(403);
+//       return res.json(err);
+//     } else {
+//       next();
+//     }
+//   });
 };
 const createNewComment =
   (authentications,
