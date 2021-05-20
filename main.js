@@ -5,7 +5,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 // const db =  require("./dbb")
-const { User, Article, Comment } = require("./schema");
+const { User, Article, Comment, Role } = require("./schema");
 const app = express();
 const port = 5000;
 app.use(express.json());
@@ -303,8 +303,8 @@ app.delete("/articles", deleteArticlesByAuthor);
 // console.log(process.env.SECRET);
 
 const createNewAuthor = (req, res) => {
-  const { firstName, lastName, age, country, email, password } = req.body;
-  const user = new User({ firstName, lastName, age, country, email, password });
+  const { firstName, lastName, age, country, email, password ,role } = req.body;
+  const user = new User({ firstName, lastName, age, country, email, password ,role });
   user
     .save()
     .then((result) => {
@@ -319,13 +319,20 @@ const createNewAuthor = (req, res) => {
 app.post("/users", createNewAuthor);
 
 const login = (req, res) => {
-  const { email, password } = req.body;
-  User.findOne({ email, password })
+  let { email, password } = req.body;
+  email = email.toLowerCase();
+  User.findOne({ email })
+    .populate("role")
+    .exec()
     .then((result) => {
       if (result) {
-        bcrypt.compare(req.body.password, result.password, (err, result) => {
-          if (result) {
-            const payload = { Id: result._id, country: result.country };
+        bcrypt.compare(req.body.password, result.password, (err, result_1) => {
+          if (result_1) {
+            const payload = {
+              Id: result._id,
+              country: result.country,
+              role: result.role,
+            };
             const options = { expiresIn: "60m" };
             const token = jwt.sign(payload, secret, options);
             res.json(token);
@@ -347,33 +354,50 @@ const login = (req, res) => {
 app.post("/login", login);
 
 const secret = process.env.SECRET;
-const createNewComment = (rea, res) => {
-  const authentication = (req, res, next) => {
-    const token = req.headers.authorization.split(" ")[1];
-    jwt.verify(token, secret, (err, result) => {
-        if (err) {
-            res.status(403)
-            return res.json(err);
-        }else{
-            next()
-        }
-    });
-}
-  const { comment, commenter } = req.body;
-  const id = req.params.id;
-  const newComment = new Comment({ comment, commenter });
-  newComment
-    .save()
-    .then((result) => {
-      res.status(201);
-      res.json(result);
-    })
-    .catch((err) => {
-      res.status(404);
-      res.json(err)
-    });
+const authentications = (req, res, next) => {
+  const token = req.headers.authorization.split(" ")[1];
+  jwt.verify(token, secret, (err, result) => {
+    if (err) {
+      res.status(403);
+      return res.json(err);
+    } else {
+      next();
+    }
+  });
 };
+const createNewComment =
+  (authentications,
+  (req, res) => {
+    const { comment, commenter } = req.body;
+    const id = req.params.id;
+    const newComment = new Comment({ comment, commenter });
+    newComment
+      .save()
+      .then((result) => {
+        res.status(201);
+        res.json(result);
+      })
+      .catch((err) => {
+        res.status(404);
+        res.json(err);
+      });
+  });
 app.post("/articles/:id/comments", createNewComment);
+
+const createNewRole = (req, res) => {
+  const { role, permissions } = req.body;
+  const newRole = new Role({ role, permissions });
+  newRole.save().then((result)=>{
+    res.json(result)
+    res.status(201)
+  }).catch((err)=>{
+    res.json(err)
+    res.status(404) 
+  })
+};
+app.post("/role", createNewRole);
+
+
 
 app.listen(port, () => {
   console.log(`server start on http://localhost:${port}`);
